@@ -67,3 +67,45 @@ sns.boxplot(x=df['longest_inactivity_gap_days'], color='#e74c3c')
 plt.title('Deteksi Outlier Jarak Hari Ketidakaktifan Terlama di LMS')
 plt.xlabel('Jarak Hari Tidak Aktif (Hari)')
 plt.show()
+
+print("\n=== 4. ANALISIS DETEKSI OUTLIER (METODE IQR) ===")
+Q1 = df['longest_inactivity_gap_days'].quantile(0.25)
+Q3 = df['longest_inactivity_gap_days'].quantile(0.75)
+IQR = Q3 - Q1
+upper_bound = Q3 + 1.5 * IQR
+
+outliers = df[df['longest_inactivity_gap_days'] > upper_bound]
+print(f"Kuartil 1 (Q1)             : {Q1} hari")
+print(f"Kuartil 3 (Q3)             : {Q3} hari")
+print(f"Interquartile Range (IQR)  : {IQR} hari")
+print(f"Batas Atas Outlier         : {upper_bound} hari")
+print(f"Jumlah Outlier Terdeteksi  : {len(outliers)} siswa")
+
+print("\n=== 5. DASHBOARD RINGKAS (4 SUBPLOT) ===")
+fig, axes = plt.subplots(2, 2, figsize=(14, 10))
+
+# Subplot 1: Bar Plot
+sns.barplot(data=avg_band, x='needs_help_band', y='final_score_pct', ax=axes[0, 0], palette='viridis')
+axes[0, 0].set_title('Rata-rata Nilai per Kategori Bantuan')
+axes[0, 0].set_xlabel('Kategori Bantuan')
+axes[0, 0].set_ylabel('Nilai Akhir (%)')
+
+# Subplot 2: Histogram
+sns.histplot(df['study_hours_per_week'], bins=20, kde=True, ax=axes[0, 1], color='#3498db')
+axes[0, 1].set_title('Distribusi Jam Belajar per Minggu')
+axes[0, 1].set_xlabel('Jam Belajar (Jam)')
+axes[0, 1].set_ylabel('Jumlah Siswa')
+
+# Subplot 3: Scatter Plot
+sns.scatterplot(data=df.sample(2000, random_state=42), x='attendance_rate', y='final_score_pct', hue='at_risk', ax=axes[1, 0], alpha=0.6, palette='coolwarm')
+axes[1, 0].set_title('Kehadiran vs Nilai Akhir Siswa')
+axes[1, 0].set_xlabel('Kehadiran (%)')
+axes[1, 0].set_ylabel('Nilai Akhir (%)')
+
+# Subplot 4: Boxplot Outlier
+sns.boxplot(x=df['longest_inactivity_gap_days'], ax=axes[1, 1], color='#e74c3c')
+axes[1, 1].set_title('Outlier Hari Tidak Aktif di LMS')
+axes[1, 1].set_xlabel('Jarak Hari Tidak Aktif (Hari)')
+
+plt.tight_layout()
+plt.show()
